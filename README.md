@@ -11,7 +11,7 @@ require 'sharefile-ruby'
 ### Connect
 
 ````
-myaccount = ShareFileService.new("yoursubdomain", "youremail", "yourpassword")
+myaccount = SharefileRuby::FileService.new("yoursubdomain", "youremail", "yourpassword")
 ````
 
 # Folders
@@ -19,7 +19,7 @@ myaccount = ShareFileService.new("yoursubdomain", "youremail", "yourpassword")
 ````
 root = myaccount.root_folder
 ````
-`root` is now a `ShareFolder` object that is the root of your sharefile account
+`root` is now a `SharefileRuby::Folder` object that is the root of your sharefile account
 
 ````
 new_folder = root.create("New Folder")
@@ -44,14 +44,14 @@ new_folder.delete
 root.fetch_children
 mystuff = root.children
 ```` 
-`mystuff` is now a list of `ShareFolder` and `ShareFile` objects in the root.
+`mystuff` is now a list of `SharefileRuby::Folder` and `SharefileRuby::File` objects in the root.
 
 ### Search
  
 ````
 results = myaccount.search("superimportantfile.txt")
 ````
-`results` is now a list of `ShareFolder` and `ShareFile` objects matching your search, according to ShareFile.
+`results` is now a list of `SharefileRuby::Folder` and `SharefileRuby::File` objects matching your search, according to ShareFile.
 
 ### Download
 
@@ -64,8 +64,8 @@ Give it a local path or look for the downloads in your local user folder (wherev
 
 ### Parents
 
-`ShareFile` gets a `parent` and a `grandparent` (of type `ShareFolder`) at initialization, if lineage allows.
-`ShareFolder` doesn't. Call `fetch_parent` or `fetch_grandparent` if you need them.
+`SharefileRuby::File` gets a `parent` and a `grandparent` (of type `SharefileRuby::Folder`) at initialization, if lineage allows.
+`SharefileRuby::Folder` doesn't. Call `fetch_parent` or `fetch_grandparent` if you need them.
 
 ````
 results.each do |r|
@@ -85,15 +85,15 @@ end
 mypeeps = myaccount.employees
 clientry = myaccount.clients
 ````
-you now have two lists of `ShareUser` objects with your employees and clients
+you now have two lists of `SharefileRuby::User` objects with your employees and clients
 
 #### Create new user
 ````
-new_kid = ShareUser.create(myaccount.subdomain, myaccount.authid, "Johnnie", "McFastfingerson", "johnnie@email.com")
+new_kid = SharefileRuby::User.create(myaccount.subdomain, myaccount.authid, "Johnnie", "McFastfingerson", "johnnie@email.com")
 ````
 OR (if you're not into the whole brevity thing):
 ````
-new_kid = ShareUser.create(myaccount.subdomain, myaccount.authid, "Johnnie", "McFastfingerson", "johnnie@email.com", true, {"company"=>"myCompany", "createfolders"=>true, "usefilebox"=>true, "manageusers"=>true, "isadmin"=>true, "password"=>"correcthorsebatterystaple"})
+new_kid = SharefileRuby::User.create(myaccount.subdomain, myaccount.authid, "Johnnie", "McFastfingerson", "johnnie@email.com", true, {"company"=>"myCompany", "createfolders"=>true, "usefilebox"=>true, "manageusers"=>true, "isadmin"=>true, "password"=>"correcthorsebatterystaple"})
 ````
 where `true` after the email address sets `new_kid` as employee. The arguments in the hash are optional; you can specify any subset of these. Default is `false` on everything, with null (ShareFile-generated) password
 
