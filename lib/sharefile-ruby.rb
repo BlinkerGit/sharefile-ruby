@@ -3,7 +3,6 @@ require 'net/https'
 require 'json'
 require 'yaml'
 
-require 'sharefile-ruby/net_http'
 require 'sharefile-ruby/file'
 require 'sharefile-ruby/file_service'
 require 'sharefile-ruby/folder'
