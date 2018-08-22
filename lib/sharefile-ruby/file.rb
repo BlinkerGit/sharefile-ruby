@@ -30,6 +30,8 @@ module SharefileRuby
       @authid = authid
       @subdomain = subdomain
 
+      return unless id.present?
+
       if item == nil
         item = getex  #get attributes from item to avoid an extra API call
       end
@@ -76,8 +78,41 @@ module SharefileRuby
       return response(url)
     end
 
-    # (not implemented) Passing the required parameters will create the file in the specified folder AFTER the upload has completed. Since a file cannot exist without a physical file uploaded, if the upload fails or is cancelled before all data has been transferred to ShareFile, this file will not exist. "filename" must include the extension.
-    def upload(filename, folderid=nil, unzip=true, overwrite=false, details=nil) #filename must include the extension
+    # Passing the required parameters will create the file in the specified folder AFTER the upload has completed.
+    # Since a file cannot exist without a physical file uploaded, if the upload fails or is cancelled before all
+    # data has been transferred to ShareFile, this file will not exist. "filename" must include the extension.
+    def upload(file, folderid=nil, name=nil, unzip=true, overwrite=false, details=nil)
+      url = (prefix + "upload&folderid=#{folderid}&filename=#{name}&unzip=#{unzip}&overwrite=#{overwrite}")
+      upload_uri = response(url)
+
+      multipart_upload(file, upload_uri, name)
+    end
+
+    def multipart_upload(tmpfile, url, name = nil)
+      newline = "\r\n"
+      filename = name || ::File.basename(tmpfile.path)
+      boundary = "ClientTouchReceive----------#{Time.now.usec}"
+
+      uri = URI.parse(url)
+
+      post_body = []
+      post_body << "--#{boundary}#{newline}"
+      post_body << "Content-Disposition: form-data; name=\"File1\"; filename=\"#{filename}\"#{newline}"
+      post_body << "Content-Type: application/octet-stream#{newline}"
+      post_body << "#{newline}"
+      post_body << ::File.read(tmpfile.path)
+      post_body << "#{newline}--#{boundary}--#{newline}"
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.body = post_body.join
+      request["Content-Type"] = "multipart/form-data, boundary=#{boundary}"
+      request['Content-Length'] = request.body().length
+
+      http = Net::HTTP.new uri.host, uri.port
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      http.request request
     end
 
     # Returns a direct link to download the file.
@@ -85,7 +120,7 @@ module SharefileRuby
       url = prefix + "download"
       r = response(url)
       if r.class == String #success
-        open(File.join(save_path,@filename), "wb").write(open(r).read)
+        open(::File.join(save_path,@filename), "wb").write(open(r).read)
         return r
       else #failed
         return r

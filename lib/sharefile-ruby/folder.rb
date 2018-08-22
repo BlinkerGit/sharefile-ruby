@@ -88,6 +88,12 @@ module SharefileRuby
       return response(url)
     end
 
+    def upload(file, name=nil, unzip=true, overwrite=false, details=nil)
+      f = File.new(nil, authid, subdomain)
+
+      f.upload(file, id, name, unzip, overwrite, details)
+    end
+
     # (not implemented) Calling this function will return a link directly to a specified folder given the "id" parameter of a folder.
     def request_url(requirelogin=false, requireuserinfo=false, expirationdays=30, notifyonupload=false)
     end
